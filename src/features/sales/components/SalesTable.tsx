@@ -4,12 +4,14 @@ import { Fragment, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { DEMO_USERS } from '@/features/session/SessionProvider';
 import { formatMoney } from '@/lib/money';
+import { STORE_TIME_ZONE } from '@/lib/store-config';
 import type { Sale } from '@/types/domain';
 
-const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'short', timeStyle: 'short' });
+// Times are shown in the store's time zone, the same one the date filters use
+const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'short', timeStyle: 'short', timeZone: STORE_TIME_ZONE });
 
-export function SalesTable({ sales }: { sales: Sale[] }) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+export function SalesTable({ sales, defaultExpandedId = null }: { sales: Sale[]; defaultExpandedId?: string | null }) {
+  const [expandedId, setExpandedId] = useState<string | null>(defaultExpandedId);
 
   return (
     <table className="w-full text-sm">

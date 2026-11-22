@@ -55,6 +55,16 @@ export type CreateSaleInput = {
 
 export type UpdateProductInput = Partial<Pick<Product, 'name' | 'price' | 'stock' | 'categoryId'>>;
 
+// GET /api/sales: one page of the filtered sales, plus a summary of the whole filtered set
+export type SalesPage = {
+  items: Sale[];
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  summary: { count: number; total: number }; // total in cents
+  newerCount: number; // sales that match the filters but arrived after `asOf`
+};
+
 export type ApiError = {
   error: { code: string; message: string };
 };

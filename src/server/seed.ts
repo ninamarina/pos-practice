@@ -1,3 +1,5 @@
+import { addDays, dayInZone, startOfDay } from '@/lib/dates';
+import { STORE_TIME_ZONE } from '@/lib/store-config';
 import type { Category, Product, Sale, User } from '@/types/domain';
 
 export const USERS: User[] = [
@@ -103,12 +105,29 @@ export function createProducts(): Product[] {
   return products;
 }
 
+// ~60 days of history (a couple of thousand sales a month), from 8:00 to 22:00 store time
+const HISTORY_DAYS = 60;
+const OPENING_HOUR = 8;
+const CLOSING_HOUR = 22;
+
 export function createSales(products: Product[]): Sale[] {
   const random = seededRandom(7);
-  const sales: Sale[] = [];
-  const now = Date.now();
+  const now = new Date();
+  const today = dayInZone(now, STORE_TIME_ZONE);
 
-  for (let i = 0; i < 40; i++) {
+  // Sale times, oldest first, so folios grow with time
+  const times: number[] = [];
+  for (let offset = HISTORY_DAYS - 1; offset >= 0; offset--) {
+    const opening = startOfDay(addDays(today, -offset), STORE_TIME_ZONE).getTime() + OPENING_HOUR * 3_600_000;
+    const openMs = (CLOSING_HOUR - OPENING_HOUR) * 3_600_000;
+    const count = 40 + Math.floor(random() * 50);
+    const dayTimes = Array.from({ length: count }, () => opening + Math.floor(random() * openMs))
+      .filter(time => time <= now.getTime())
+      .sort((a, b) => a - b);
+    times.push(...dayTimes);
+  }
+
+  const sales = times.map((time, i): Sale => {
     const items = Array.from({ length: 1 + Math.floor(random() * 4) }, () => {
       const product = products[Math.floor(random() * products.length)];
       return { productId: product.id, name: product.name, unitPrice: product.price, quantity: 1 + Math.floor(random() * 3) };
@@ -117,17 +136,19 @@ export function createSales(products: Product[]): Sale[] {
     const paymentMethod = random() > 0.5 ? 'card' : 'cash';
     const cashReceived = paymentMethod === 'cash' ? Math.ceil(total / 10000) * 10000 : null;
 
-    sales.push({
+    return {
       id: `sale_${i + 1}`,
       folio: 1000 + i,
-      createdAt: new Date(now - (40 - i) * 47 * 60 * 1000).toISOString(),
+      createdAt: new Date(time).toISOString(),
       cashierId: random() > 0.3 ? 'usr_luis' : 'usr_ana',
       items,
       total,
       paymentMethod,
       cashReceived,
       change: cashReceived === null ? null : cashReceived - total,
-    });
-  }
+    };
+  });
+
+  // Newest first, as the API returns them
   return sales.reverse();
 }

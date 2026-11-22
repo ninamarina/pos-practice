@@ -1,11 +1,18 @@
 import { db } from '@/server/db';
 import { delay, errorResponse, shouldFail } from '@/server/http';
+import { STORE_TIME_ZONE } from '@/lib/store-config';
+import { parseSalesQuery, querySales } from '@/server/sales-query';
 import type { CreateSaleInput, Sale } from '@/types/domain';
 
-// GET /api/sales: newest first
-export async function GET() {
+// GET /api/sales?range=today|yesterday|week|month  or  ?from=YYYY-MM-DD&to=YYYY-MM-DD
+//   &cashierId=&method=cash|card&page=1&pageSize=20&asOf=<ISO timestamp>
+// Newest first, paginated. The summary covers the whole filtered set, not just the page.
+export async function GET(request: Request) {
   await delay();
-  return Response.json(db.sales);
+  const params = new URL(request.url).searchParams;
+  const parsed = parseSalesQuery(params, STORE_TIME_ZONE, new Date());
+  if (!parsed.ok) return errorResponse(400, 'invalid_query', parsed.message);
+  return Response.json(querySales(db.sales, parsed.query, STORE_TIME_ZONE));
 }
 
 // POST /api/sales: registers a sale and decrements stock
