@@ -15,7 +15,8 @@ export function SalesTable({ sales, defaultExpandedId = null }: { sales: Sale[];
 
   return (
     <table className="w-full text-sm">
-      <thead className="border-b border-slate-200 text-left text-slate-500">
+      {/* Sticky header while the rows scroll. The bottom line is a shadow: with border-collapse, a border on a sticky row disappears */}
+      <thead className="sticky top-0 z-10 bg-white text-left text-slate-500 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
         <tr>
           <th className="px-4 py-2 font-medium">Folio</th>
           <th className="px-4 py-2 font-medium">Fecha</th>

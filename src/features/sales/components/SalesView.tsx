@@ -51,7 +51,9 @@ export function SalesView() {
   const updating = !searchingFolio && list.isPlaceholderData;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4">
+    // Fills the height below the header (main is a flex column): only the table rows scroll,
+    // so the filters and the pagination are always visible. min-h-0 lets it shrink below its content.
+    <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-4 p-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h1 className="text-xl font-semibold">Ventas</h1>
         {!searchingFolio && list.data && (
@@ -78,7 +80,9 @@ export function SalesView() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      {/* As tall as its rows, never taller than the space left: no flex-1, so it doesn't grow (no empty space with
+          few rows), but it can shrink (flex-shrink: 1) when the rows don't fit, and then the rows scroll */}
+      <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
         {searchingFolio ? (
           <FolioResult folio={filters.folio!} query={folioSale} />
         ) : list.isPending ? (
@@ -105,11 +109,18 @@ export function SalesView() {
         ) : (
           <>
             {/* Previous results stay visible but dimmed while the new ones load */}
-            <div aria-busy={updating} className={updating ? 'opacity-50 transition-opacity' : 'transition-opacity'}>
+            {/* The only scrolling area. min-h-0 is needed: a flex item can't shrink below its content otherwise.
+                The key remounts it on each page or filter change, so the new results start at the top
+                instead of keeping the previous scroll position. */}
+            <div
+              key={JSON.stringify([filters.date, filters.cashierId, filters.method, filters.page])}
+              aria-busy={updating}
+              className={`min-h-0 overflow-y-auto transition-opacity ${updating ? 'opacity-50' : ''}`}
+            >
               <SalesTable sales={list.data.items} />
             </div>
             {list.data.totalPages > 1 && (
-              <div className="border-t border-slate-200">
+              <div className="shrink-0 border-t border-slate-200">
                 <Pagination page={list.data.page} totalPages={list.data.totalPages} onPageChange={goToPage} />
               </div>
             )}
