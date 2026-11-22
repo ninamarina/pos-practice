@@ -8,7 +8,7 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Tiendita POS',
-  description: 'Punto de venta para tiendas de barrio',
+  description: 'Punto de venta para tiendas',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

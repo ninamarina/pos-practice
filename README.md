@@ -1,6 +1,6 @@
 # Tiendita POS
 
-Punto de venta para tiendas de barrio en México: el cajero busca productos, arma el ticket y cobra en efectivo o con tarjeta. La dueña además administra el catálogo.
+Punto de venta para tiendas en México: el cajero busca productos, arma el ticket y cobra en efectivo o con tarjeta. La dueña además administra el catálogo.
 
 Es un prototipo: la API es un mock en memoria servido por Next.js. Los datos se reinician al reiniciar el servidor.
 
@@ -84,7 +84,7 @@ Hay tres tipos de ejercicio:
 
 El foco es **frontend**. Si un caso necesita cambios en la API, alcanza con decir qué le pedirías al equipo de backend y por qué.
 
-### Calentamiento: las categorías desaparecieron
+### 1. Calentamiento: las categorías desaparecieron
 
 En la pantalla **Vender**, debajo del buscador, deberían verse las categorías (Todo, Bebidas, Botanas y dulces…) para filtrar el catálogo. Hoy solo se ve una línea fina; los botones no aparecen.
 
@@ -92,47 +92,7 @@ Encuentra la causa, arréglalo y explica por qué pasaba. ¿Cómo evitarías que
 
 ---
 
-### 1. Descuentos
-
-La tienda quiere aplicar descuentos:
-
-- Un porcentaje o un monto fijo a un producto del ticket.
-- Un descuento al total del ticket.
-- Los cajeros pueden dar hasta 10%; descuentos mayores necesitan la autorización de la dueña.
-
-¿Cómo lo modelarías y qué cambiarías en el front y en la API?
-
-### 2. Vender sin internet
-
-En muchas tiendas el internet se corta varias veces al día. Hoy, si no hay conexión, no se puede vender.
-
-¿Cómo harías que el cajero pueda seguir cobrando sin conexión? ¿Qué pasa cuando vuelve?
-
-### 3. Varias cajas
-
-La tienda abre una segunda caja. Las dos venden al mismo tiempo sobre el mismo inventario.
-
-¿Qué problemas aparecen? ¿Cómo mantendrías el stock y las ventas actualizados en las dos cajas?
-
-### 4. Lector de código de barras
-
-Queremos que el cajero escanee productos con un lector USB en lugar de buscarlos. El lector se comporta como un teclado: "tipea" el código y presiona Enter.
-
-¿Cómo lo integrarías en la pantalla de venta?
-
-### 5. Catálogo grande
-
-Una cadena de minisúpers quiere usar el sistema con **20.000 productos**. ¿Qué parte de la app sufriría primero y cómo la prepararías?
-
-### 6. Pago mixto
-
-Un cliente quiere pagar una parte en efectivo y el resto con tarjeta. ¿Qué cambiarías?
-
-### 7. Devoluciones
-
-Un cliente vuelve con un producto del ticket #1032. ¿Cómo diseñarías el flujo de devolución?
-
-### 8. Filtros en el historial de ventas
+### 2. Filtros en el historial de ventas
 
 Hoy la pantalla **Ventas** muestra todas las ventas, sin filtros. La dueña quiere:
 
@@ -142,6 +102,46 @@ Hoy la pantalla **Ventas** muestra todas las ventas, sin filtros. La dueña quie
 - Poder **compartir el link** de una vista filtrada con su contador.
 
 La tienda tiene miles de ventas por mes. ¿Cómo lo implementarías en el front y qué le pedirías al backend?
+
+### 3. Descuentos
+
+La tienda quiere aplicar descuentos:
+
+- Un porcentaje o un monto fijo a un producto del ticket.
+- Un descuento al total del ticket.
+- Los cajeros pueden dar hasta 10%; descuentos mayores necesitan la autorización de la dueña.
+
+¿Cómo lo modelarías y qué cambiarías en el front y en la API?
+
+### 4. Vender sin internet
+
+En muchas tiendas el internet se corta varias veces al día. Hoy, si no hay conexión, no se puede vender.
+
+¿Cómo harías que el cajero pueda seguir cobrando sin conexión? ¿Qué pasa cuando vuelve?
+
+### 5. Varias cajas
+
+La tienda abre una segunda caja. Las dos venden al mismo tiempo sobre el mismo inventario.
+
+¿Qué problemas aparecen? ¿Cómo mantendrías el stock y las ventas actualizados en las dos cajas?
+
+### 6. Lector de código de barras
+
+Queremos que el cajero escanee productos con un lector USB en lugar de buscarlos. El lector se comporta como un teclado: "tipea" el código y presiona Enter.
+
+¿Cómo lo integrarías en la pantalla de venta?
+
+### 7. Catálogo grande
+
+Una cadena de minisúpers quiere usar el sistema con **20.000 productos**. ¿Qué parte de la app sufriría primero y cómo la prepararías?
+
+### 8. Pago mixto
+
+Un cliente quiere pagar una parte en efectivo y el resto con tarjeta. ¿Qué cambiarías?
+
+### 9. Devoluciones
+
+Un cliente vuelve con un producto del ticket #1032. ¿Cómo diseñarías el flujo de devolución?
 
 ---
 
