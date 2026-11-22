@@ -56,7 +56,7 @@ export function FolioSearch({ value, onChange }: FolioSearchProps) {
             onChange={event => handleChange(event.target.value)}
             placeholder="Buscar folio"
             // Own padding: room for the "#" prefix and the clear button
-            className="w-36 rounded-lg border border-slate-300 bg-white py-2 pr-8 pl-6"
+            className="w-36 rounded-lg border border-slate-300 bg-white py-2 pr-6 pl-6"
           />
           {text && (
             <button

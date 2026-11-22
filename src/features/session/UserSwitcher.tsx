@@ -10,8 +10,9 @@ export function UserSwitcher() {
   return (
     <label className="flex items-center gap-2 text-sm text-slate-600">
       <span className="hidden sm:inline">Usuario</span>
+      {/* Compact for the header, so it doesn't use <Select>; it shares the same chevron */}
       <select
-        className="rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-900"
+        className="select-chevron rounded-md border border-slate-300 bg-white py-1 pr-8 pl-2 text-slate-900"
         value={user.id}
         onChange={event => setUserId(event.target.value)}
       >

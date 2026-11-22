@@ -10,7 +10,8 @@ export function Input({ className = '', ...props }: ComponentProps<'input'>) {
   return <input className={`${controlClass} ${className}`} {...props} />;
 }
 
-// A native <select>: options go as children, so groups, an "all" option or any value work without extra props
+// A native <select>: options go as children, so groups, an "all" option or any value work without extra props.
+// select-chevron (globals.css) replaces the browser's arrow so it doesn't touch the border.
 export function Select({ className = '', ...props }: ComponentProps<'select'>) {
-  return <select className={`${controlClass} ${className}`} {...props} />;
+  return <select className={`${controlClass} select-chevron pr-10 ${className}`} {...props} />;
 }
