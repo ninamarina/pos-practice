@@ -76,15 +76,17 @@ Los errores tienen la forma `{ "error": { "code": "...", "message": "..." } }`.
 
 ## Ejercicios
 
-Hay tres tipos de ejercicio:
+Hay cuatro ejercicios y dos preguntas cortas:
 
-- **Calentamiento:** un bug chico para resolver en vivo. Puedes usar la AI que quieras; nos interesa cómo lo investigas y cómo explicas la causa.
-- **Casos:** conversamos cómo resolverías una feature. No hace falta escribir código: nos interesa cómo analizas el problema, qué preguntas harías, qué opciones ves y qué decidirías. Puedes apoyarte en el código existente y proponer cambios en él.
+- **Bug visual:** un bug chico para resolver en vivo. Puedes usar la AI que quieras; nos interesa cómo lo investigas y cómo explicas la causa.
+- **Componente:** diseñar un componente de UI reutilizable, hablado.
+- **Caso:** conversamos cómo resolverías una feature. No hace falta escribir código: nos interesa cómo analizas el problema, qué preguntas harías, qué opciones ves y qué decidirías. Puedes apoyarte en el código existente y proponer cambios en él.
 - **Diseño técnico:** a partir de un requerimiento de producto y un contrato de API ya definido, armas el diseño del frontend, hablado.
+- **Preguntas cortas:** temas conceptuales para responder en unos 30 segundos, sin entrar en detalle.
 
-El foco es **frontend**. Si un caso necesita cambios en la API, alcanza con decir qué le pedirías al equipo de backend y por qué.
+El foco es **frontend**. Si un ejercicio necesita cambios en la API, alcanza con decir qué le pedirías al equipo de backend y por qué.
 
-### 1. Calentamiento: las categorías desaparecieron
+### 1. Las categorías desaparecieron
 
 En la pantalla **Vender**, debajo del buscador, deberían verse las categorías (Todo, Bebidas, Botanas y dulces…) para filtrar el catálogo. Hoy solo se ve una línea fina; los botones no aparecen.
 
@@ -92,7 +94,21 @@ Encuentra la causa, arréglalo y explica por qué pasaba. ¿Cómo evitarías que
 
 ---
 
-### 2. Filtros en el historial de ventas
+### 2. Componente `Dialog` reutilizable
+
+Hoy el diálogo de cobro (`CheckoutDialog`) está hecho a mano, sin un componente base. Queremos un **`Dialog` genérico** en `components/ui` para usarlo en el cobro, en confirmaciones ("¿Cerrar el turno?") y en cualquier otro diálogo de la app.
+
+Es un ejercicio de UI: no hace falta pensar en la API ni en los datos. ¿Cómo lo diseñarías? Por ejemplo:
+
+- La API del componente: qué props recibe y cómo se usa desde el cobro y desde una confirmación.
+- Accesibilidad: el foco, el teclado y lo que anuncia un lector de pantalla.
+- Comportamiento: el contenido de fondo, cómo se cierra y qué pasa si se está enviando algo.
+- Variantes: tamaños, un diálogo de confirmación.
+- Cómo lo testearías.
+
+---
+
+### 3. Filtros en el historial de ventas
 
 Hoy la pantalla **Ventas** muestra todas las ventas, sin filtros. La dueña quiere:
 
@@ -103,49 +119,11 @@ Hoy la pantalla **Ventas** muestra todas las ventas, sin filtros. La dueña quie
 
 La tienda tiene miles de ventas por mes. ¿Cómo lo implementarías en el front y qué le pedirías al backend?
 
-### 3. Descuentos
-
-La tienda quiere aplicar descuentos:
-
-- Un porcentaje o un monto fijo a un producto del ticket.
-- Un descuento al total del ticket.
-- Los cajeros pueden dar hasta 10%; descuentos mayores necesitan la autorización de la dueña.
-
-¿Cómo lo modelarías y qué cambiarías en el front y en la API?
-
-### 4. Vender sin internet
-
-En muchas tiendas el internet se corta varias veces al día. Hoy, si no hay conexión, no se puede vender.
-
-¿Cómo harías que el cajero pueda seguir cobrando sin conexión? ¿Qué pasa cuando vuelve?
-
-### 5. Varias cajas
-
-La tienda abre una segunda caja. Las dos venden al mismo tiempo sobre el mismo inventario.
-
-¿Qué problemas aparecen? ¿Cómo mantendrías el stock y las ventas actualizados en las dos cajas?
-
-### 6. Lector de código de barras
-
-Queremos que el cajero escanee productos con un lector USB en lugar de buscarlos. El lector se comporta como un teclado: "tipea" el código y presiona Enter.
-
-¿Cómo lo integrarías en la pantalla de venta?
-
-### 7. Catálogo grande
-
-Una cadena de minisúpers quiere usar el sistema con **20.000 productos**. ¿Qué parte de la app sufriría primero y cómo la prepararías?
-
-### 8. Pago mixto
-
-Un cliente quiere pagar una parte en efectivo y el resto con tarjeta. ¿Qué cambiarías?
-
-### 9. Devoluciones
-
-Un cliente vuelve con un producto del ticket #1032. ¿Cómo diseñarías el flujo de devolución?
-
 ---
 
-### Diseño técnico: corte de caja
+### 4. Diseño técnico: corte de caja
+
+Se puede practicar en una versión reducida: solo el flujo del cajero (abrir la caja, vender, cerrar con el conteo y ver el resultado), dejando para después los retiros e ingresos, la aprobación de la dueña y el reporte.
 
 > **Requerimiento de producto**
 >
@@ -185,3 +163,21 @@ Explica cómo lo implementarías **en el frontend**, sin escribir código. Por e
 - Permisos en la UI y qué hace el front con un `403` o un `409`.
 - Casos borde del lado del cliente: se corta internet a mitad del conteo, se recarga la página, doble click en "Cerrar turno".
 - Cómo lo dividirías en entregas y qué tests escribirías.
+
+---
+
+## Preguntas cortas
+
+Para responder en unos 30 segundos: el problema principal y cómo lo encararías, sin diseñarlo en detalle.
+
+### Vender sin internet
+
+En muchas tiendas el internet se corta varias veces al día. Hoy, si no hay conexión, no se puede vender.
+
+¿Cómo harías que el cajero pueda seguir cobrando sin conexión? ¿Qué pasa cuando vuelve?
+
+### Varias cajas
+
+La tienda abre una segunda caja. Las dos venden al mismo tiempo sobre el mismo inventario.
+
+¿Qué problemas aparecen? ¿Cómo mantendrías el stock y las ventas actualizados en las dos cajas?

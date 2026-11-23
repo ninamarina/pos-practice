@@ -1,6 +1,6 @@
 # Hallazgos en Tiendita POS
 
-Los problemas que encontré o que conversamos en los simulacros, con lo que diría de cada uno en una entrevista. Es material de repaso, no una lista completa: **puede haber más problemas en el código**.
+Los problemas que encontré o que conversamos en los simulacros, con lo que diría de cada uno en una entrevista. Es material de repaso y cubre todos los problemas que se dejaron a propósito en el código.
 
 Para cada uno:
 
@@ -131,7 +131,7 @@ Un cambio pisa a otro hecho en el medio: es un **lost update**.
 
 ---
 
-## 8. Calentamiento: las categorías desaparecen
+## 8. Las categorías desaparecen
 
 **Dónde:** `src/features/catalog/components/CategoryTabs.tsx`, dentro de la `<section>` de `src/app/page.tsx`.
 
@@ -147,6 +147,107 @@ Un cambio pisa a otro hecho en el medio: es un **lost update**.
 - **Mejor UX:** que solo scrollee la grilla de productos (`flex-1 min-h-0 overflow-y-auto`), y que el buscador y las categorías queden fijos arriba.
 
 **Cómo evitar que vuelva a pasar:** tests visuales de regresión (screenshots con Playwright), revisar la UI en el tamaño de una tablet, que es el dispositivo principal de una caja, y verificar que un arreglo no rompa otra cosa.
+
+---
+
+## 9. Todo el catálogo se baja y se filtra en el navegador
+
+**Dónde:** `useProducts` en `src/features/catalog/api.ts`, usado en la pantalla de Vender (`src/app/page.tsx`). La tabla de `src/app/productos/page.tsx` tiene el mismo problema.
+
+**Por qué es un problema:**
+
+- Se piden los 2.528 productos de una vez.
+- Se filtran en el navegador **en cada tecla**, sin debounce.
+- La grilla renderiza **todas** las tarjetas, sin virtualizar, y la tabla de Productos todas las filas.
+- La API ya acepta `?q=` y `categoryId`, pero nadie los usa.
+
+Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de venta es lo primero que se pone lenta.
+
+**Cómo lo arreglaría:**
+
+- Antes que nada, **medir** con el React Profiler y la pestaña Performance, para saber qué es lo lento.
+- Búsqueda en el servidor con `?q=`, con debounce y cancelando el request anterior.
+- Paginación o scroll infinito, y **virtualizar** la grilla (por ejemplo, con TanStack Virtual), para renderizar solo lo que se ve.
+
+**Para la entrevista:** *"Hoy baja todo el catálogo y filtra en cada tecla. Primero mido; después paso la búsqueda al servidor con debounce, que la API ya soporta, y virtualizo la grilla."*
+
+---
+
+## 10. El precio queda congelado al agregar el producto al ticket
+
+**Dónde:** el carrito guarda el producto entero y usa `line.product.price` (`src/features/cart`).
+
+**Por qué es un problema:** si la dueña cambia el precio mientras el producto está en el ticket, la caja sigue mostrando el anterior.
+
+**Cómo lo arreglaría:** es una regla de negocio que decide producto. Lo normal es cobrar el precio del momento en que se escaneó. Pero el que calcula lo que se cobra es el servidor (hallazgo 1), y si el precio cambió, la caja puede avisar: *"El precio de la leche cambió de $28 a $30"*.
+
+**Para la entrevista:** *"Qué precio se cobra lo decide producto; desde el front, me aseguro de que el servidor sea quien calcula y de avisar si el precio cambió."*
+
+---
+
+## 11. Los roles solo existen en la UI
+
+**Dónde:**
+
+- `src/app/productos/page.tsx` oculta "Editar" para el cajero, pero `/productos/:id` se abre igual escribiendo la URL.
+- `PATCH /api/products/:id` no verifica quién lo llama.
+- La "sesión" es un selector en el header (`src/features/session`), sin login real.
+
+**Por qué es un problema:** cualquier cajero puede cambiar precios y stock.
+
+**Cómo lo arreglaría:** autenticación real, y que **el backend** verifique el rol en cada endpoint y responda `403` si no corresponde. En el front, ocultar el botón sigue estando bien, pero es solo UX; además, manejar el `403` si llega.
+
+**Para la entrevista:** *"Ocultar el botón no es seguridad. Los permisos los aplica el backend; el front solo adapta la UI y maneja el 403."*
+
+---
+
+## 12. Los usuarios están duplicados
+
+**Dónde:** `DEMO_USERS` en `src/features/session/SessionProvider.tsx` y `USERS` en `src/server/seed.ts`. `GET /api/users` existe, pero el front no lo usa.
+
+**Por qué es un problema:** si se agrega o renombra un cajero en un lugar, el otro queda desactualizado, y la app muestra nombres distintos según la pantalla.
+
+**Cómo lo arreglaría:** una sola fuente de verdad: la API. El front pide `/api/users` con React Query (con un `staleTime` largo, porque cambia poco).
+
+**Para la entrevista:** *"Hay dos listas de usuarios que se pueden desincronizar. Usaría solo la API, que ya existe."*
+
+---
+
+## 13. Errores al cobrar
+
+**Dónde:** `src/features/checkout/components/CheckoutDialog.tsx`.
+
+**Por qué es un problema:**
+
+- Si la venta falla, se muestra el mensaje, pero no hay una forma clara de reintentar. Si el cajero reintenta a mano y la venta en realidad se había registrado, se duplica (hallazgo 3).
+- El pago con tarjeta se confirma a mano: no hay ningún vínculo entre la terminal de pago y la venta, así que se puede registrar una venta con tarjeta que nunca se cobró.
+
+**Cómo lo arreglaría:**
+
+- Un botón "Reintentar" que reuse la **misma** Idempotency-Key, así el reintento nunca duplica.
+- A futuro, integrar la terminal para que la venta se confirme cuando el pago se aprueba.
+
+**Para la entrevista:** *"Ante un error, el cajero necesita reintentar sin miedo a duplicar: por eso el reintento reusa la misma Idempotency-Key."*
+
+---
+
+## 14. Accesibilidad
+
+**El diálogo de cobro** (`CheckoutDialog.tsx`):
+
+- Al abrirlo, el foco **sí** entra: el campo "Recibido" tiene `autoFocus`.
+- Pero el foco **no queda atrapado**: con Tab se sale del diálogo y llega a la grilla de productos que está detrás.
+- **Escape no lo cierra.**
+- Al cerrarlo, el foco **no vuelve** al botón "Cobrar": queda en el `<body>`, y quien usa teclado o lector de pantalla pierde su lugar.
+
+**Las filas de Ventas** (`src/features/sales/components/SalesTable.tsx`): se expanden con un click en el `<tr>`, pero no se puede hacer con el teclado.
+
+**Cómo lo arreglaría:**
+
+- Un componente `Dialog` reutilizable que resuelva el foco, Escape y la vuelta del foco en un solo lugar (es el ejercicio 2 del README). Por ejemplo, con el elemento nativo `<dialog>` y `showModal()`, o con una librería como Radix o React Aria.
+- En la tabla, un `<button>` dentro de la fila para expandirla, con `aria-expanded`.
+
+**Para la entrevista:** *"El diálogo maneja bien el foco al abrir, pero no lo atrapa, no cierra con Escape y no lo devuelve al cerrar. Lo resolvería una vez en un `Dialog` reutilizable, en lugar de en cada diálogo."*
 
 ---
 
