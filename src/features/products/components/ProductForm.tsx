@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Field } from '@/components/ui/Field';
+import { Input, Select } from '@/components/ui/Input';
 import { parseMoney } from '@/lib/money';
 import type { Category, Product, UpdateProductInput } from '@/types/domain';
 
@@ -35,22 +37,22 @@ export function ProductForm({ product, categories, submitting, error, onSubmit, 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field label="Nombre" htmlFor="name">
-        <input id="name" value={name} onChange={e => setName(e.target.value)} required className={inputClass} />
+        <Input id="name" value={name} onChange={e => setName(e.target.value)} required className="w-full" />
       </Field>
       <div className="grid grid-cols-2 gap-4">
         <Field label="Precio (MXN, con IVA)" htmlFor="price">
-          <input id="price" inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} required className={inputClass} />
+          <Input id="price" inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} required className="w-full" />
         </Field>
         <Field label="Stock" htmlFor="stock">
-          <input id="stock" type="number" min={0} value={stock} onChange={e => setStock(e.target.value)} required className={inputClass} />
+          <Input id="stock" type="number" min={0} value={stock} onChange={e => setStock(e.target.value)} required className="w-full" />
         </Field>
       </div>
       <Field label="Categoría" htmlFor="category">
-        <select id="category" value={categoryId} onChange={e => setCategoryId(e.target.value)} className={inputClass}>
+        <Select id="category" value={categoryId} onChange={e => setCategoryId(e.target.value)} className="w-full">
           {categories.map(category => (
             <option key={category.id} value={category.id}>{category.name}</option>
           ))}
-        </select>
+        </Select>
       </Field>
       <p className="text-xs text-slate-500">SKU {product.sku} · Código de barras {product.barcode}</p>
 
@@ -64,13 +66,3 @@ export function ProductForm({ product, categories, submitting, error, onSubmit, 
   );
 }
 
-const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2';
-
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return (
-    <div>
-      <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700">{label}</label>
-      {children}
-    </div>
-  );
-}

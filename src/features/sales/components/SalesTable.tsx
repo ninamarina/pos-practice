@@ -4,17 +4,20 @@ import { Fragment, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { useSession } from '@/features/session/SessionProvider';
 import { formatMoney } from '@/lib/money';
+import { STORE_TIME_ZONE } from '@/lib/store-config';
 import type { Sale } from '@/types/domain';
 
-const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'short', timeStyle: 'short' });
+// Times are shown in the store's time zone, the same one the date filters use
+const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'short', timeStyle: 'short', timeZone: STORE_TIME_ZONE });
 
-export function SalesTable({ sales }: { sales: Sale[] }) {
+export function SalesTable({ sales, defaultExpandedId = null }: { sales: Sale[]; defaultExpandedId?: string | null }) {
   const { users } = useSession();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(defaultExpandedId);
 
   return (
     <table className="w-full text-sm">
-      <thead className="border-b border-slate-200 text-left text-slate-500">
+      {/* Sticky header while the rows scroll. The bottom line is a shadow: with border-collapse, a border on a sticky row disappears */}
+      <thead className="sticky top-0 z-10 bg-white text-left text-slate-500 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
         <tr>
           <th className="px-4 py-2 font-medium">Folio</th>
           <th className="px-4 py-2 font-medium">Fecha</th>

@@ -72,7 +72,8 @@ Los montos son **centavos de MXN** con IVA incluido.
 | `PATCH` | `/api/products/:id` | Edita nombre, precio, stock o categoría. Solo la dueña: `403` para cajeros |
 | `GET` | `/api/categories` | Categorías |
 | `GET` | `/api/users` | Usuarios de la tienda |
-| `GET` | `/api/sales` | Ventas, de la más nueva a la más vieja |
+| `GET` | `/api/sales?range=&from=&to=&cashierId=&method=&page=&pageSize=&asOf=` | Ventas filtradas y paginadas, de la más nueva a la más vieja, con el resumen del total filtrado |
+| `GET` | `/api/sales/by-folio/:folio` | Una venta por su folio, o `404` |
 | `GET` | `/api/sales/:id` | Una venta |
 | `POST` | `/api/sales` | Registra una venta y descuenta el stock. Requiere el header `Idempotency-Key`. El servidor calcula los precios y el total: `409 out_of_stock` o `409 price_changed` |
 
