@@ -2,21 +2,20 @@
 
 import { useState } from 'react';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
 import { useCategories, useProducts } from '@/features/catalog/api';
 import { ProductsTable } from '@/features/products/components/ProductsTable';
 import { useSession } from '@/features/session/SessionProvider';
 
+const TABLE_LIMIT = 100;
+
 export default function ProductsPage() {
   const { user } = useSession();
-  const products = useProducts();
-  const categories = useCategories();
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search);
   const [onlyLowStock, setOnlyLowStock] = useState(false);
-
-  const visible = (products.data ?? []).filter(
-    product =>
-      product.name.toLowerCase().includes(search.toLowerCase()) && (!onlyLowStock || product.stock < 5),
-  );
+  const products = useProducts({ q: debouncedSearch, lowStock: onlyLowStock, limit: TABLE_LIMIT });
+  const categories = useCategories();
 
   return (
     <div className="mx-auto w-full max-w-6xl p-4">
@@ -42,12 +41,17 @@ export default function ProductsPage() {
           <LoadingState label="Cargando productos…" />
         ) : products.isError || categories.isError ? (
           <ErrorState message="No se pudieron cargar los productos" onRetry={() => products.refetch()} />
-        ) : visible.length === 0 ? (
+        ) : products.data.products.length === 0 ? (
           <EmptyState>No hay productos que coincidan</EmptyState>
         ) : (
-          <ProductsTable products={visible} categories={categories.data} canEdit={user.role === 'owner'} />
+          <ProductsTable products={products.data.products} categories={categories.data} canEdit={user.role === 'owner'} />
         )}
       </div>
+      {products.data?.hasMore && (
+        <p className="mt-3 text-center text-sm text-slate-500">
+          Se muestran los primeros {TABLE_LIMIT}. Busca por nombre, SKU o código de barras para encontrar otros.
+        </p>
+      )}
     </div>
   );
 }

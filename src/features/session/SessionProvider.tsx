@@ -1,26 +1,34 @@
 'use client';
 
 import { createContext, use, useState, type ReactNode } from 'react';
+import { ErrorState, LoadingState } from '@/components/ui/States';
+import { setCurrentUserId } from '@/lib/api-client';
 import type { User } from '@/types/domain';
+import { useUsers } from './api';
 
-// No real auth in this prototype: the current user is picked from the header
-export const DEMO_USERS: User[] = [
-  { id: 'usr_ana', name: 'Ana Torres', role: 'owner' },
-  { id: 'usr_luis', name: 'Luis Méndez', role: 'cashier' },
-];
+// No real auth in this prototype: the current user is picked from the header.
+// The list of users comes from the API, the single source of truth
 
 type Session = {
   user: User;
+  users: User[];
   setUserId: (id: string) => void;
 };
 
 const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [userId, setUserId] = useState(DEMO_USERS[1].id);
-  const user = DEMO_USERS.find(u => u.id === userId) ?? DEMO_USERS[1];
+  const users = useUsers();
+  const [userId, setUserId] = useState<string | null>(null);
 
-  return <SessionContext value={{ user, setUserId }}>{children}</SessionContext>;
+  if (users.isPending) return <LoadingState />;
+  if (users.isError) return <ErrorState message="No se pudieron cargar los usuarios" onRetry={() => users.refetch()} />;
+
+  // Starts as the first cashier until someone picks another user
+  const user = users.data.find(u => u.id === userId) ?? users.data.find(u => u.role === 'cashier') ?? users.data[0];
+  setCurrentUserId(user.id);
+
+  return <SessionContext value={{ user, users: users.data, setUserId }}>{children}</SessionContext>;
 }
 
 export function useSession() {

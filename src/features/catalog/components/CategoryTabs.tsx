@@ -10,7 +10,8 @@ export function CategoryTabs({ categories, selectedId, onSelect }: CategoryTabsP
   const tabs = [{ id: null, name: 'Todo' }, ...categories];
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
+    // shrink-0: with overflow-x-auto its minimum height would be 0, and a flex column could shrink it out of sight
+    <div className="flex shrink-0 gap-2 overflow-x-auto pb-1">
       {tabs.map(tab => (
         <button
           key={tab.id ?? 'all'}

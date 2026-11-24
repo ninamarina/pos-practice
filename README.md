@@ -1,5 +1,11 @@
 # Tiendita POS
 
+> **Por qué existe este repo:** lo armé para practicar para una entrevista de frontend con **React Query**: server state y cache, mutaciones e idempotencia, estado en la URL y accesibilidad. Los ejercicios de abajo están escritos como me los planteaban a mí.
+>
+> - `main`: la versión con los problemas arreglados.
+> - `exercise`: la versión original, con problemas puestos a propósito. Los ejercicios se hacen sobre esta branch.
+> - [HALLAZGOS.md](HALLAZGOS.md): cada problema, por qué importa y cómo lo arreglé.
+
 Punto de venta para tiendas en México: el cajero busca productos, arma el ticket y cobra en efectivo o con tarjeta. La dueña además administra el catálogo.
 
 Es un prototipo: la API es un mock en memoria servido por Next.js. Los datos se reinician al reiniciar el servidor.
@@ -61,16 +67,18 @@ Los montos son **centavos de MXN** con IVA incluido.
 
 | Método | Ruta | Descripción |
 | --- | --- | --- |
-| `GET` | `/api/products?q=&categoryId=` | Lista de productos (~2.500) |
+| `GET` | `/api/products?q=&categoryId=&lowStock=&limit=` | Busca productos (~2.500 en total) |
 | `GET` | `/api/products/:id` | Un producto |
-| `PATCH` | `/api/products/:id` | Edita nombre, precio, stock o categoría |
+| `PATCH` | `/api/products/:id` | Edita nombre, precio, stock o categoría. Solo la dueña: `403` para cajeros |
 | `GET` | `/api/categories` | Categorías |
 | `GET` | `/api/users` | Usuarios de la tienda |
 | `GET` | `/api/sales` | Ventas, de la más nueva a la más vieja |
 | `GET` | `/api/sales/:id` | Una venta |
-| `POST` | `/api/sales` | Registra una venta y descuenta el stock |
+| `POST` | `/api/sales` | Registra una venta y descuenta el stock. Requiere el header `Idempotency-Key`. El servidor calcula los precios y el total: `409 out_of_stock` o `409 price_changed` |
 
 Los errores tienen la forma `{ "error": { "code": "...", "message": "..." } }`.
+
+No hay login real: el front manda el usuario elegido en el header `X-User-Id`, y el servidor lo usa para los permisos.
 
 ---
 

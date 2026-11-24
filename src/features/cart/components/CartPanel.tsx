@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button';
 import { formatMoney } from '@/lib/money';
-import type { Cart } from '../useCart';
+import type { Cart } from '../CartProvider';
 import { CartLineRow } from './CartLineRow';
 
 type CartPanelProps = {
@@ -28,10 +28,10 @@ export function CartPanel({ cart, onCheckout }: CartPanelProps) {
         <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto px-4">
           {cart.lines.map(line => (
             <CartLineRow
-              key={line.product.id}
+              key={line.productId}
               line={line}
-              onQuantityChange={quantity => cart.setQuantity(line.product.id, quantity)}
-              onRemove={() => cart.remove(line.product.id)}
+              onQuantityChange={quantity => cart.setQuantity(line.productId, quantity)}
+              onRemove={() => cart.remove(line.productId)}
             />
           ))}
         </ul>

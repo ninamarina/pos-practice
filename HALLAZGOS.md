@@ -2,12 +2,14 @@
 
 Los problemas que encontré o que conversamos en los simulacros, con lo que diría de cada uno en una entrevista. Es material de repaso y cubre todos los problemas que se dejaron a propósito en el código.
 
+Describe el código de la branch `exercise`. En `main` ya están aplicados los arreglos.
+
 Para cada uno:
 
 - **Dónde:** el archivo.
 - **Por qué es un problema:** qué le pasa al usuario o al negocio.
 - **Cómo lo arreglaría:** del lado del front y lo que le pediría a backend.
-- **Para la entrevista:** una frase para decirlo.
+- **En una frase:** cómo lo diría, resumido.
 
 ---
 
@@ -19,7 +21,7 @@ Para cada uno:
 
 **Cómo lo arreglaría:** el front manda solo lo que el usuario elige (`productId` y `quantity`). El servidor busca los precios y calcula el total. El front puede mostrar un total como **preview**, pero el que vale es el de la respuesta.
 
-**Para la entrevista:** *"El precio y el total los calcula el servidor. El cliente manda ids y cantidades, porque cualquier cosa que viene del navegador se puede manipular."*
+**En una frase:** *"El precio y el total los calcula el servidor. El cliente manda ids y cantidades, porque cualquier cosa que viene del navegador se puede manipular."*
 
 ---
 
@@ -34,7 +36,7 @@ Para cada uno:
 - **Backend:** chequear y descontar en una sola operación atómica, por ejemplo `UPDATE ... SET stock = stock - 1 WHERE id = ? AND stock >= 1`. Si no alcanza, responde **`409 out_of_stock`**. Es un 409 y no un 422 porque el request está bien formado: el conflicto es con el estado actual del servidor.
 - **Front:** ante el 409, mostrar qué producto no tiene stock y dejar que el cajero lo quite del ticket. Hay que preguntarle a producto si se permite "vender sin stock", porque el cliente tiene el producto en la mano.
 
-**Para la entrevista:** *"El stock no lo puede garantizar el front, porque hay otras cajas. Lo valida el servidor al vender, de forma atómica, y responde 409. El front lo maneja sin perder el ticket."*
+**En una frase:** *"El stock no lo puede garantizar el front, porque hay otras cajas. Lo valida el servidor al vender, de forma atómica, y responde 409. El front lo maneja sin perder el ticket."*
 
 ---
 
@@ -53,7 +55,7 @@ Para cada uno:
 - **Idempotency-Key:** el front genera un UUID **cuando se abre el diálogo de cobro** y lo manda en un header. Si reintenta, manda la **misma** key.
 - **Backend:** guarda key → respuesta. Si llega la misma key, devuelve la respuesta guardada en lugar de crear otra venta.
 
-**Para la entrevista:** *"Deshabilitar el botón es UX. Lo que garantiza que no se duplique es una Idempotency-Key que genero una vez por intento de cobro y reuso en los reintentos."*
+**En una frase:** *"Deshabilitar el botón es UX. Lo que garantiza que no se duplique es una Idempotency-Key que genero una vez por intento de cobro y reuso en los reintentos."*
 
 ---
 
@@ -68,7 +70,7 @@ Para cada uno:
 - Si la respuesta de la venta trae el stock actualizado, usar `setQueryData` para actualizar solo esos productos en el cache, sin requests.
 - Otra opción: pedirle a backend un endpoint liviano solo de stock.
 
-**Para la entrevista:** *"Invalidar es lo más simple, pero acá es caro. Uso `setQueryData` con lo que ya me devuelve la mutación y actualizo solo lo que cambió."*
+**En una frase:** *"Invalidar es lo más simple, pero acá es caro. Uso `setQueryData` con lo que ya me devuelve la mutación y actualizo solo lo que cambió."*
 
 ---
 
@@ -85,7 +87,7 @@ Para cada uno:
 
 **Cómo lo arreglaría:** varios minutos de `staleTime` para el catálogo. El stock lo valida el servidor al vender (problema 2). Si producto necesita ver precios o stock casi en vivo, empiezo con polling a un endpoint liviano y paso a SSE si hace falta.
 
-**Para la entrevista:** *"Depende del dato. El catálogo cambia poco, así que le doy minutos de `staleTime`. Lo correcto lo garantiza el servidor, y si hace falta frescura, empiezo con polling y escalo a SSE."*
+**En una frase:** *"Depende del dato. El catálogo cambia poco, así que le doy minutos de `staleTime`. Lo correcto lo garantiza el servidor, y si hace falta frescura, empiezo con polling y escalo a SSE."*
 
 ---
 
@@ -102,7 +104,7 @@ Para cada uno:
 
 No hace falta un carrito en el servidor: el ticket es local a la caja.
 
-**Para la entrevista:** *"Para un prototipo está bien. Si se necesita, lo subo a un store global y lo persisto en `localStorage`, que además es la base para vender sin conexión."*
+**En una frase:** *"Para un prototipo está bien. Si se necesita, lo subo a un store global y lo persisto en `localStorage`, que además es la base para vender sin conexión."*
 
 ---
 
@@ -127,7 +129,7 @@ Un cambio pisa a otro hecho en el medio: es un **lost update**.
 - Con la respuesta del PATCH, hacer `setQueryData` en `['products', id]` y reemplazar el ítem en `['products']`, en lugar de volver a pedir todo.
 - Para conflictos más serios, se puede pedir a backend control de versiones (`If-Match` / ETag → `409` si cambió).
 
-**Para la entrevista:** *"Mando solo lo que cambió, para no pisar el stock que otra caja actualizó en el medio, y actualizo el cache con la respuesta del PATCH."*
+**En una frase:** *"Mando solo lo que cambió, para no pisar el stock que otra caja actualizó en el medio, y actualizo el cache con la respuesta del PATCH."*
 
 ---
 
@@ -169,7 +171,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 - Búsqueda en el servidor con `?q=`, con debounce y cancelando el request anterior.
 - Paginación o scroll infinito, y **virtualizar** la grilla (por ejemplo, con TanStack Virtual), para renderizar solo lo que se ve.
 
-**Para la entrevista:** *"Hoy baja todo el catálogo y filtra en cada tecla. Primero mido; después paso la búsqueda al servidor con debounce, que la API ya soporta, y virtualizo la grilla."*
+**En una frase:** *"Hoy baja todo el catálogo y filtra en cada tecla. Primero mido; después paso la búsqueda al servidor con debounce, que la API ya soporta, y virtualizo la grilla."*
 
 ---
 
@@ -181,7 +183,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 
 **Cómo lo arreglaría:** es una regla de negocio que decide producto. Lo normal es cobrar el precio del momento en que se escaneó. Pero el que calcula lo que se cobra es el servidor (hallazgo 1), y si el precio cambió, la caja puede avisar: *"El precio de la leche cambió de $28 a $30"*.
 
-**Para la entrevista:** *"Qué precio se cobra lo decide producto; desde el front, me aseguro de que el servidor sea quien calcula y de avisar si el precio cambió."*
+**En una frase:** *"Qué precio se cobra lo decide producto; desde el front, me aseguro de que el servidor sea quien calcula y de avisar si el precio cambió."*
 
 ---
 
@@ -197,7 +199,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 
 **Cómo lo arreglaría:** autenticación real, y que **el backend** verifique el rol en cada endpoint y responda `403` si no corresponde. En el front, ocultar el botón sigue estando bien, pero es solo UX; además, manejar el `403` si llega.
 
-**Para la entrevista:** *"Ocultar el botón no es seguridad. Los permisos los aplica el backend; el front solo adapta la UI y maneja el 403."*
+**En una frase:** *"Ocultar el botón no es seguridad. Los permisos los aplica el backend; el front solo adapta la UI y maneja el 403."*
 
 ---
 
@@ -209,7 +211,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 
 **Cómo lo arreglaría:** una sola fuente de verdad: la API. El front pide `/api/users` con React Query (con un `staleTime` largo, porque cambia poco).
 
-**Para la entrevista:** *"Hay dos listas de usuarios que se pueden desincronizar. Usaría solo la API, que ya existe."*
+**En una frase:** *"Hay dos listas de usuarios que se pueden desincronizar. Usaría solo la API, que ya existe."*
 
 ---
 
@@ -227,7 +229,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 - Un botón "Reintentar" que reuse la **misma** Idempotency-Key, así el reintento nunca duplica.
 - A futuro, integrar la terminal para que la venta se confirme cuando el pago se aprueba.
 
-**Para la entrevista:** *"Ante un error, el cajero necesita reintentar sin miedo a duplicar: por eso el reintento reusa la misma Idempotency-Key."*
+**En una frase:** *"Ante un error, el cajero necesita reintentar sin miedo a duplicar: por eso el reintento reusa la misma Idempotency-Key."*
 
 ---
 
@@ -247,7 +249,7 @@ Con un catálogo más grande (por ejemplo, 20.000 productos), la pantalla de ven
 - Un componente `Dialog` reutilizable que resuelva el foco, Escape y la vuelta del foco en un solo lugar (es el ejercicio 2 del README). Por ejemplo, con el elemento nativo `<dialog>` y `showModal()`, o con una librería como Radix o React Aria.
 - En la tabla, un `<button>` dentro de la fila para expandirla, con `aria-expanded`.
 
-**Para la entrevista:** *"El diálogo maneja bien el foco al abrir, pero no lo atrapa, no cierra con Escape y no lo devuelve al cerrar. Lo resolvería una vez en un `Dialog` reutilizable, en lugar de en cada diálogo."*
+**En una frase:** *"El diálogo maneja bien el foco al abrir, pero no lo atrapa, no cierra con Escape y no lo devuelve al cerrar. Lo resolvería una vez en un `Dialog` reutilizable, en lugar de en cada diálogo."*
 
 ---
 

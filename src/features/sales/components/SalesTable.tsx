@@ -2,13 +2,14 @@
 
 import { Fragment, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
-import { DEMO_USERS } from '@/features/session/SessionProvider';
+import { useSession } from '@/features/session/SessionProvider';
 import { formatMoney } from '@/lib/money';
 import type { Sale } from '@/types/domain';
 
 const dateFormatter = new Intl.DateTimeFormat('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 
 export function SalesTable({ sales }: { sales: Sale[] }) {
+  const { users } = useSession();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
@@ -26,14 +27,30 @@ export function SalesTable({ sales }: { sales: Sale[] }) {
       <tbody className="divide-y divide-slate-100">
         {sales.map(sale => {
           const expanded = expandedId === sale.id;
-          const cashier = DEMO_USERS.find(u => u.id === sale.cashierId)?.name ?? sale.cashierId;
+          const cashier = users.find(u => u.id === sale.cashierId)?.name ?? sale.cashierId;
           return (
             <Fragment key={sale.id}>
+              {/* The row is clickable for the mouse; the button in the first cell is what works with the keyboard and screen readers */}
               <tr
                 onClick={() => setExpandedId(expanded ? null : sale.id)}
                 className="cursor-pointer hover:bg-slate-50"
               >
-                <td className="px-4 py-2 font-medium">#{sale.folio}</td>
+                <td className="px-4 py-2 font-medium">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-controls={`sale-${sale.id}`}
+                    aria-label={`Venta #${sale.folio}, ${expanded ? 'ocultar' : 'ver'} detalle`}
+                    onClick={event => {
+                      event.stopPropagation();
+                      setExpandedId(expanded ? null : sale.id);
+                    }}
+                    className="flex items-center gap-1 rounded"
+                  >
+                    <span aria-hidden className={`text-slate-400 transition-transform ${expanded ? 'rotate-90' : ''}`}>›</span>
+                    #{sale.folio}
+                  </button>
+                </td>
                 <td className="px-4 py-2 text-slate-600">{dateFormatter.format(new Date(sale.createdAt))}</td>
                 <td className="px-4 py-2">{cashier}</td>
                 <td className="px-4 py-2">{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
@@ -45,7 +62,7 @@ export function SalesTable({ sales }: { sales: Sale[] }) {
                 <td className="px-4 py-2 text-right font-semibold tabular-nums">{formatMoney(sale.total)}</td>
               </tr>
               {expanded && (
-                <tr className="bg-slate-50">
+                <tr id={`sale-${sale.id}`} className="bg-slate-50">
                   <td colSpan={6} className="px-4 py-3">
                     <ul className="space-y-1">
                       {sale.items.map(item => (

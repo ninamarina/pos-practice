@@ -45,12 +45,19 @@ export type Sale = {
   change: number | null;
 };
 
+// The client sends only what the cashier chose. The server looks up the prices and computes the total.
+// expectedTotal is the total the cashier saw: if prices changed since, the server answers 409 price_changed
 export type CreateSaleInput = {
-  cashierId: string;
-  items: { productId: string; quantity: number; unitPrice: number }[];
-  total: number;
+  items: { productId: string; quantity: number }[];
+  expectedTotal: number;
   paymentMethod: PaymentMethod;
   cashReceived: number | null;
+};
+
+// The sale plus the stock left for each product sold, so the client can update its cache without refetching
+export type CreateSaleResult = {
+  sale: Sale;
+  stock: Record<string, number>;
 };
 
 export type UpdateProductInput = Partial<Pick<Product, 'name' | 'price' | 'stock' | 'categoryId'>>;

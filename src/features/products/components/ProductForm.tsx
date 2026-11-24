@@ -20,9 +20,16 @@ export function ProductForm({ product, categories, submitting, error, onSubmit, 
   const [stock, setStock] = useState(String(product.stock));
   const [categoryId, setCategoryId] = useState(product.categoryId);
 
+  // Send only the fields the owner changed. Sending all of them would overwrite, for example,
+  // a stock that a sale changed while the form was open (a lost update)
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    onSubmit({ name, price: parseMoney(price), stock: Number(stock), categoryId });
+    const changes: UpdateProductInput = {};
+    if (name.trim() !== product.name) changes.name = name;
+    if (parseMoney(price) !== product.price) changes.price = parseMoney(price);
+    if (Number(stock) !== product.stock) changes.stock = Number(stock);
+    if (categoryId !== product.categoryId) changes.categoryId = categoryId;
+    onSubmit(changes);
   }
 
   return (
