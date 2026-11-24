@@ -1,6 +1,6 @@
 # Tiendita POS
 
-> **Por qué existe este repo:** lo armé para practicar para una entrevista de frontend con **React Query**: server state y cache, mutaciones e idempotencia, estado en la URL y accesibilidad. Los ejercicios de abajo están escritos como me los planteaban a mí.
+> **Por qué existe este repo:** lo armé para practicar para una entrevista de frontend con **React Query**: server state y cache, mutaciones e idempotencia, estado en la URL y accesibilidad.
 >
 > - `main`: la versión con los problemas arreglados.
 > - `exercise`: la versión original, con problemas puestos a propósito. Los ejercicios se hacen sobre esta branch.
